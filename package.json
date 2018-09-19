@@ -19,7 +19,9 @@
     "start": "probot run ./lib/index.js",
     "lint": "standard **/*.ts --fix",
     "test": "jest && standard **/*.ts",
-    "test:watch": "jest --watch --notify --notifyMode=change --coverage"
+    "test:watch": "jest --watch --notify --notifyMode=change --coverage",
+    "now-start": "PRIVATE_KEY=$(echo $PRIVATE_KEY_BASE64 | base64 -d) npm start",
+    "now-build": "NODE_ENV=production tsc -p tsconfig.json"
   },
   "dependencies": {
     "probot": "^7.0.0",
@@ -35,7 +37,7 @@
     "smee-client": "^1.0.2",
     "standard": "^10.0.3",
     "ts-jest": "^23.0.0",
-    "typescript": "^2.9.2",
+    "typescript": "^3.0.3",
     "typescript-eslint-parser": "^18.0.0"
   },
   "engines": {
