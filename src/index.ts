@@ -62,6 +62,8 @@ async function getAllMergedPullRequestsSinceLastRelease(
 function generateReleaseBody(pullRequests: GetAllResponseItem[]) {
   return (
     '# Changelog\n\n' +
-    pullRequests.map(x => `* ${x.title} [#${x.number}](${x.url})`).join('\n')
+    pullRequests
+      .map(x => `* ${x.title} [#${x.number}](${x.html_url})`)
+      .join('\n')
   )
 }
