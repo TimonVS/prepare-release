@@ -1,6 +1,6 @@
 import { Application, Context } from 'probot'
 import { findReleases } from './releases'
-import { GetAllResponseItem, GetReleaseResponse } from '@octokit/rest'
+import { GetAllResponseItem, GetReleasesResponseItem } from '@octokit/rest'
 
 const BASE_BRANCH = 'master'
 
@@ -9,12 +9,13 @@ export = (app: Application) => {
     if (!context.payload.pull_request.merged_at) return
 
     const { draftRelease, lastRelease } = await findReleases(app, context)
-    const mergedPullRequestsSinceLastRelease = await getAllMergedPullRequestsSinceLastRelease(
+    const pullRequeasts = await getPullRequestsSinceLastRelease(
       app,
       context,
       lastRelease
     )
-    const releaseBody = generateReleaseBody(mergedPullRequestsSinceLastRelease)
+
+    const releaseBody = generateReleaseBody(pullRequeasts)
 
     if (draftRelease) {
       await context.github.repos.editRelease({
@@ -34,12 +35,12 @@ export = (app: Application) => {
   })
 }
 
-async function getAllMergedPullRequestsSinceLastRelease(
+async function getPullRequestsSinceLastRelease(
   app: Application,
   context: Context,
-  lastRelease: GetReleaseResponse
+  lastRelease?: GetReleasesResponseItem
 ) {
-  const pullRequests: GetAllResponseItem[] = await context.github.paginate(
+  const pullRequests = await context.github.paginate(
     context.github.pullRequests.getAll({
       base: BASE_BRANCH,
       state: 'closed',
@@ -49,14 +50,14 @@ async function getAllMergedPullRequestsSinceLastRelease(
     res => res.data
   )
 
-  const mergedPullRequestsSinceLastRelease = pullRequests.filter(
-    x =>
-      !!x.merged_at
-        ? new Date(x.merged_at) > new Date(lastRelease.published_at)
-        : false
-  )
-
-  return mergedPullRequestsSinceLastRelease
+  return lastRelease && lastRelease.published_at
+    ? pullRequests.filter(
+        x =>
+          !!x.merged_at
+            ? new Date(x.merged_at) > new Date(lastRelease.published_at)
+            : false
+      )
+    : pullRequests
 }
 
 function generateReleaseBody(pullRequests: GetAllResponseItem[]) {

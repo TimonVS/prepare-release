@@ -22,8 +22,7 @@ export async function findReleases(app: Application, context: Context) {
   const sortedPublishedReleases = sortReleases(releases.filter(r => !r.draft))
   // TODO: check if the release was created by the bot
   const draftRelease = releases.find(r => r.draft)
-  const lastRelease =
-    sortedPublishedReleases[sortedPublishedReleases.length - 1]
+  const lastRelease = R.last(sortedPublishedReleases)
 
   if (draftRelease) {
     app.log({
