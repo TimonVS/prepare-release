@@ -1,18 +1,16 @@
 # Prepare Release
 
-> A GitHub App built with [Probot](https://github.com/probot/probot)
+A GitHub app that drafts release notes from your merged pull requests since the last release. This bot was inspired by [Release Drafter](https://github.com/toolmantim/release-drafter) which does more or less the same but doesn't support rebase merging. This bot supports rebase merging as well as all other merge strategies.
 
-A clone of [Release Drafter](https://github.com/toolmantim/release-drafter) that supports rebase merging as well as all other merge strategies.
-
-## Setup
+## Development set-up
 
 ```sh
 # Install dependencies
-npm install
+yarn
 
 # Run typescript
-npm run build
+yarn build:watch
 
 # Run the bot
-npm start
+yarn dev
 ```
