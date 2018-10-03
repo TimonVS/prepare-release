@@ -1,5 +1,6 @@
 import { Application } from 'probot'
 import myProbotApp from '../src'
+import { paginate } from './helpers/mocks'
 const pullRequestMergedPayload = require('./fixtures/webhooks/pull-request-merged.json')
 
 describe('My Probot app', () => {
@@ -16,9 +17,7 @@ describe('My Probot app', () => {
         editRelease: jest.fn().mockReturnValue(Promise.resolve({}))
       },
       pullRequests: {},
-      paginate: async function(fn: any, cb: any) {
-        return fn.then(cb)
-      }
+      paginate
     }
 
     // Passes the mocked out GitHub API into out app instance

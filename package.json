@@ -18,8 +18,8 @@
     "dev": "nodemon --exec \"npm start\"",
     "start": "probot run ./lib/index.js",
     "lint": "standard **/*.ts --fix",
-    "test": "jest",
-    "test:watch": "jest --watch --notify --notifyMode=change --coverage",
+    "test": "LOG_LEVEL=error jest",
+    "test:watch": "LOG_LEVEL=error jest --watch --notify --notifyMode=change --coverage",
     "now-start": "PRIVATE_KEY=$(echo $PRIVATE_KEY_BASE64 | base64 -d) npm start",
     "now-build": "NODE_ENV=production tsc -p tsconfig.json"
   },

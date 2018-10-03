@@ -1,18 +1,17 @@
-import { Application, Context } from 'probot'
+import { Application } from 'probot'
 import { findReleases } from './releases'
-import { GetAllResponseItem, GetReleaseResponse } from '@octokit/rest'
-
-const BASE_BRANCH = 'master'
+import { GetAllResponseItem } from '@octokit/rest'
+import { getAllMergedPullRequests } from './pull-requests'
 
 export = (app: Application) => {
   app.on('pull_request.closed', async context => {
     if (!context.payload.pull_request.merged_at) return
 
     const { draftRelease, lastRelease } = await findReleases(app, context)
-    const mergedPullRequestsSinceLastRelease = await getAllMergedPullRequestsSinceLastRelease(
+    const mergedPullRequestsSinceLastRelease = await getAllMergedPullRequests(
       app,
       context,
-      lastRelease
+      lastRelease ? new Date(lastRelease.published_at) : undefined
     )
     const releaseBody = generateReleaseBody(mergedPullRequestsSinceLastRelease)
 
@@ -35,34 +34,6 @@ export = (app: Application) => {
       })
     }
   })
-}
-
-async function getAllMergedPullRequestsSinceLastRelease(
-  app: Application,
-  context: Context,
-  lastRelease: GetReleaseResponse
-) {
-  const pullRequests: GetAllResponseItem[] = await context.github.paginate(
-    context.github.pullRequests.getAll({
-      base: BASE_BRANCH,
-      sort: 'updated',
-      state: 'closed',
-      direction: 'desc',
-      ...context.repo()
-    }),
-    res => res.data
-  )
-
-  if (!lastRelease) return pullRequests
-
-  const mergedPullRequestsSinceLastRelease = pullRequests.filter(
-    x =>
-      !!x.merged_at
-        ? new Date(x.merged_at) > new Date(lastRelease.published_at)
-        : false
-  )
-
-  return mergedPullRequestsSinceLastRelease
 }
 
 function generateReleaseBody(pullRequests: GetAllResponseItem[]) {
