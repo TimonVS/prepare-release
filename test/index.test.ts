@@ -1,28 +1,100 @@
 import { Application } from 'probot'
 import myProbotApp from '../src'
-import pullRequestMergedPayload from './fixtures/pull_request_merged.json'
+const pullRequestMergedPayload = require('./fixtures/webhooks/pull-request-merged.json')
 
 describe('My Probot app', () => {
-  let app, github
+  let app: Application
+  let github: any
 
   beforeEach(() => {
     app = new Application()
-    // Initialize the app based on the code from index.js
     app.load(myProbotApp)
-    // This is an easy way to mock out the GitHub API
+
     github = {
-      issues: {
-        createComment: jest.fn().mockReturnValue(Promise.resolve({}))
+      repos: {
+        createRelease: jest.fn().mockReturnValue(Promise.resolve({})),
+        editRelease: jest.fn().mockReturnValue(Promise.resolve({}))
+      },
+      pullRequests: {},
+      paginate: async function(fn: any, cb: any) {
+        return fn.then(cb)
       }
     }
+
     // Passes the mocked out GitHub API into out app instance
     app.auth = () => Promise.resolve(github)
   })
 
-  test('a', async () => {
+  test('create draft release', async () => {
+    github.repos.getReleases = jest
+      .fn()
+      .mockReturnValue(
+        Promise.resolve({ data: require('./fixtures/releases.json') })
+      )
+
+    github.pullRequests.getAll = jest
+      .fn()
+      .mockReturnValue(
+        Promise.resolve({ data: require('./fixtures/pull-requests.json') })
+      )
+
     await app.receive({
       name: 'pull_request.closed',
       payload: pullRequestMergedPayload
     })
+
+    expect(github.repos.createRelease).toHaveBeenCalledWith({
+      body: `# Changelog\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
+      draft: true,
+      owner: 'TimonVS',
+      repo: 'prepare-release-test-repo',
+      tag_name: ''
+    })
+  })
+
+  test('edit draft release if a draft release exists', async () => {
+    github.repos.getReleases = jest
+      .fn()
+      .mockReturnValue(
+        Promise.resolve({ data: require('./fixtures/releases-draft.json') })
+      )
+
+    github.pullRequests.getAll = jest
+      .fn()
+      .mockReturnValue(
+        Promise.resolve({ data: require('./fixtures/pull-requests.json') })
+      )
+
+    await app.receive({
+      name: 'pull_request.closed',
+      payload: pullRequestMergedPayload
+    })
+
+    expect(github.repos.editRelease).toHaveBeenCalledWith({
+      body: `# Changelog\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
+      draft: true,
+      owner: 'TimonVS',
+      repo: 'prepare-release-test-repo',
+      release_id: 2
+    })
+  })
+
+  test("don't create draft release when there are no merged PRs", async () => {
+    github.repos.getReleases = jest
+      .fn()
+      .mockReturnValue(
+        Promise.resolve({ data: require('./fixtures/releases.json') })
+      )
+
+    github.pullRequests.getAll = jest
+      .fn()
+      .mockReturnValue(Promise.resolve({ data: [] }))
+
+    await app.receive({
+      name: 'pull_request.closed',
+      payload: pullRequestMergedPayload
+    })
+
+    expect(github.repos.createRelease).not.toHaveBeenCalled()
   })
 })

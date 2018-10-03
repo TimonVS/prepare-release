@@ -16,6 +16,9 @@ export = (app: Application) => {
     )
     const releaseBody = generateReleaseBody(mergedPullRequestsSinceLastRelease)
 
+    // Don't create a new draft release when there are no PRs for the changelog
+    if (mergedPullRequestsSinceLastRelease.length === 0 && !draftRelease) return
+
     if (draftRelease) {
       await context.github.repos.editRelease({
         release_id: draftRelease.id,
@@ -42,12 +45,15 @@ async function getAllMergedPullRequestsSinceLastRelease(
   const pullRequests: GetAllResponseItem[] = await context.github.paginate(
     context.github.pullRequests.getAll({
       base: BASE_BRANCH,
+      sort: 'updated',
       state: 'closed',
       direction: 'desc',
       ...context.repo()
     }),
     res => res.data
   )
+
+  if (!lastRelease) return pullRequests
 
   const mergedPullRequestsSinceLastRelease = pullRequests.filter(
     x =>
