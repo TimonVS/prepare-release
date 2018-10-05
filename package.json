@@ -24,7 +24,7 @@
     "now-build": "NODE_ENV=production tsc -p tsconfig.json"
   },
   "dependencies": {
-    "probot": "^7.0.0",
+    "probot": "^7.2.0",
     "ramda": "^0.25.0"
   },
   "devDependencies": {
