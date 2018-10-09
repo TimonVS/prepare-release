@@ -2,9 +2,12 @@ import { Application } from 'probot'
 import { findReleases } from './releases'
 import { GetAllResponseItem } from '@octokit/rest'
 import { getAllMergedPullRequests } from './pull-requests'
+import log from './log'
 
 export = (app: Application) => {
   app.on('pull_request.closed', async context => {
+    log(app, context, 'Merged PR')
+
     if (!context.payload.pull_request.merged_at) return
 
     const { draftRelease, lastRelease } = await findReleases(app, context)
@@ -19,6 +22,8 @@ export = (app: Application) => {
     if (mergedPullRequestsSinceLastRelease.length === 0 && !draftRelease) return
 
     if (draftRelease) {
+      log(app, context, 'Updating existing draft release')
+
       await context.github.repos.editRelease({
         release_id: draftRelease.id,
         body: releaseBody,
@@ -26,6 +31,8 @@ export = (app: Application) => {
         ...context.repo()
       })
     } else {
+      log(app, context, 'Creating new draft release')
+
       await context.github.repos.createRelease({
         tag_name: '',
         body: releaseBody,
