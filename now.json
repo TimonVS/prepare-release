@@ -1,0 +1,8 @@
+{
+  "alias": "prepare-release",
+  "env": {
+    "APP_ID": "@prepare-release-app-id",
+    "WEBHOOK_SECRET": "@prepare-release-webhook-secret",
+    "PRIVATE_KEY_BASE64": "@prepare-release-private-key-base64"
+  }
+}
