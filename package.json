@@ -12,6 +12,10 @@
     "github",
     "probot-app"
   ],
+  "now": {
+    "alias": "prepare-release",
+    "dotenv": ".env.production"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -w -p tsconfig.json",
