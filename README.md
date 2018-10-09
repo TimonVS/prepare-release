@@ -14,3 +14,5 @@ yarn build:watch
 # Run the bot
 yarn dev
 ```
+
+See the [Probot deployment docs](https://probot.github.io/docs/deployment/) if you would like to run your own instance of this plugin.
