@@ -14,7 +14,10 @@ describe('My Probot app', () => {
     github = {
       repos: {
         createRelease: jest.fn().mockReturnValue(Promise.resolve({})),
-        editRelease: jest.fn().mockReturnValue(Promise.resolve({}))
+        editRelease: jest.fn().mockReturnValue(Promise.resolve({})),
+        getContent: jest
+          .fn()
+          .mockReturnValue(Promise.resolve({ data: { content: '' } }))
       },
       pullRequests: {},
       paginate
@@ -43,7 +46,7 @@ describe('My Probot app', () => {
     })
 
     expect(github.repos.createRelease).toHaveBeenCalledWith({
-      body: `# Changelog\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
+      body: `# Changes\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
       draft: true,
       owner: 'TimonVS',
       repo: 'prepare-release-test-repo',
@@ -70,7 +73,7 @@ describe('My Probot app', () => {
     })
 
     expect(github.repos.editRelease).toHaveBeenCalledWith({
-      body: `# Changelog\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
+      body: `# Changes\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
       draft: true,
       owner: 'TimonVS',
       repo: 'prepare-release-test-repo',

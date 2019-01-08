@@ -16,7 +16,12 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "declaration": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["./types/*"]
+    }
   },
   "include": ["src/**/*"],
   "compileOnSave": false

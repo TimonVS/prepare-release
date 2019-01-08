@@ -1,4 +1,5 @@
 import { Application } from 'probot'
+import getConfig from 'probot-config'
 import { findReleases } from './releases'
 import { GetAllResponseItem } from '@octokit/rest'
 import { getAllMergedPullRequests } from './pull-requests'
@@ -8,6 +9,10 @@ export = (app: Application) => {
   app.on('pull_request.closed', async context => {
     log(app, context, 'Merged PR')
 
+    const config = await getConfig(context, 'prepare-release.yml', {
+      template: '# Changes\n\n$CHANGES'
+    })
+
     if (!context.payload.pull_request.merged_at) return
 
     const { draftRelease, lastRelease } = await findReleases(app, context)
@@ -16,7 +21,10 @@ export = (app: Application) => {
       context,
       lastRelease ? new Date(lastRelease.published_at) : undefined
     )
-    const releaseBody = generateReleaseBody(mergedPullRequestsSinceLastRelease)
+    const releaseBody = generateReleaseBody(
+      config.template,
+      mergedPullRequestsSinceLastRelease
+    )
 
     // Don't create a new draft release when there are no PRs for the changelog
     if (mergedPullRequestsSinceLastRelease.length === 0 && !draftRelease) return
@@ -43,9 +51,12 @@ export = (app: Application) => {
   })
 }
 
-function generateReleaseBody(pullRequests: GetAllResponseItem[]) {
-  return (
-    '# Changelog\n\n' +
+function generateReleaseBody(
+  template: string,
+  pullRequests: GetAllResponseItem[]
+) {
+  return template.replace(
+    '$CHANGES',
     pullRequests
       .map(x => `* ${x.title} [#${x.number}](${x.html_url})`)
       .join('\n')
