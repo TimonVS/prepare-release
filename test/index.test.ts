@@ -46,7 +46,7 @@ describe('My Probot app', () => {
     })
 
     expect(github.repos.createRelease).toHaveBeenCalledWith({
-      body: `# Changes\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
+      body: `# Changes\n\n* new-feature ([#1347](https://github.com/octocat/Hello-World/pull/1347)) @octocat`,
       draft: true,
       owner: 'TimonVS',
       repo: 'prepare-release-test-repo',
@@ -73,7 +73,7 @@ describe('My Probot app', () => {
     })
 
     expect(github.repos.editRelease).toHaveBeenCalledWith({
-      body: `# Changes\n\n* new-feature [#1347](https://github.com/octocat/Hello-World/pull/1347)`,
+      body: `# Changes\n\n* new-feature ([#1347](https://github.com/octocat/Hello-World/pull/1347)) @octocat`,
       draft: true,
       owner: 'TimonVS',
       repo: 'prepare-release-test-repo',

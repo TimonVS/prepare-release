@@ -58,7 +58,10 @@ function generateReleaseBody(
   return template.replace(
     '$CHANGES',
     pullRequests
-      .map(x => `* ${x.title} [#${x.number}](${x.html_url})`)
+      .map(
+        pr =>
+          `* ${pr.title} ([#${pr.number}](${pr.html_url})) @${pr.user!.login}`
+      )
       .join('\n')
   )
 }
